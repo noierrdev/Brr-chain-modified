@@ -1,0 +1,14 @@
+anchor_version = "0.24.2"
+
+[workspace]
+members = ["programs/farming"]
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+farming = "FarmuwXPWXvefWUeqFAa5w6rifLkq5X6E8bimYvrhCB1"

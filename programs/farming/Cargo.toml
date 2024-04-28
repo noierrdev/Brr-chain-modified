@@ -1,0 +1,21 @@
+[package]
+name = "farming"
+version = "0.2.2"
+description = "Created with Anchor"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "farming"
+
+[features]
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+devnet = []
+verbose = []
+
+[dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+spl-math = { version = "0.1.0", features = ["no-entrypoint"] }
+solana-program = "1.16"
