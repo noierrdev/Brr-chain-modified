@@ -7,11 +7,12 @@ import { Farming } from "../../target/types/farming";
 import {
   getPoolPda,
   getRewardAVaultPda,
-  getRewardBVaultPda,
+  // getRewardBVaultPda,
   getStakingVaultPda,
   getUserPda,
   REWARD_DURATION,
 } from "./utils";
+import { describe } from "mocha";
 
 const provider = anchor.AnchorProvider.env();
 anchor.setProvider(provider);
@@ -30,7 +31,6 @@ function sleep(ms: number) {
     setTimeout(res, ms);
   });
 }
-
 describe("dual-farming with single reward", () => {
   let stakingMint: anchor.web3.PublicKey = null;
   let rewardMint: anchor.web3.PublicKey = null;
@@ -117,13 +117,13 @@ describe("dual-farming with single reward", () => {
       rewardMint,
       BASE_KEYPAIR.publicKey
     );
-    const [rewardBVaultAddress, _rewardBVaultBump] = await getRewardBVaultPda(
-      program,
-      stakingMint,
-      rewardMint,
-      rewardMint,
-      BASE_KEYPAIR.publicKey
-    );
+    // const [rewardBVaultAddress, _rewardBVaultBump] = await getRewardBVaultPda(
+    //   program,
+    //   stakingMint,
+    //   rewardMint,
+    //   rewardMint,
+    //   BASE_KEYPAIR.publicKey
+    // );
     await program.methods
       .initializePool(REWARD_DURATION)
       .accounts({
@@ -132,9 +132,9 @@ describe("dual-farming with single reward", () => {
         pool: farmingPoolAddress,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         rewardAMint: rewardMint,
-        rewardBMint: rewardMint,
+        // rewardBMint: rewardMint,
         rewardAVault: rewardAVaultAddress,
-        rewardBVault: rewardBVaultAddress,
+        // rewardBVault: rewardBVaultAddress,
         stakingMint,
         stakingVault: stakingVaultAddress,
         systemProgram: anchor.web3.SystemProgram.programId,
@@ -238,7 +238,7 @@ describe("dual-farming with single reward", () => {
         funder: ADMIN_KEYPAIR.publicKey,
         pool: farmingPoolAddress,
         rewardAVault: poolAccount.rewardAVault,
-        rewardBVault: poolAccount.rewardBVault,
+        // rewardBVault: poolAccount.rewardBVault,
         stakingVault: poolAccount.stakingVault,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
@@ -278,9 +278,9 @@ describe("dual-farming with single reward", () => {
         owner: USER_KEYPAIR.publicKey,
         pool: farmingPoolAddress,
         rewardAAccount: userRewardATA,
-        rewardBAccount: userRewardATA,
+        // rewardBAccount: userRewardATA,
         rewardAVault: poolAccount.rewardAVault,
-        rewardBVault: poolAccount.rewardBVault,
+        // rewardBVault: poolAccount.rewardBVault,
         stakingVault: poolAccount.stakingVault,
         tokenProgram: TOKEN_PROGRAM_ID,
         user: userStakingAddress,

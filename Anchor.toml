@@ -12,3 +12,5 @@ wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
 farming = "FarmuwXPWXvefWUeqFAa5w6rifLkq5X6E8bimYvrhCB1"
+
+
