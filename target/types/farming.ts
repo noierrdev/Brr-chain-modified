@@ -6,37 +6,13 @@ export type Farming = {
   ],
   "instructions": [
     {
-      "name": "userReward",
-      "docs": [
-        "Compute User reward anytime"
-      ],
-      "accounts": [
-        {
-          "name": "pool",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "chargeReward",
       "docs": [
         "Charge Reward"
       ],
       "accounts": [
         {
-          "name": "rewardBank",
+          "name": "pool",
           "isMut": true,
           "isSigner": false
         },
@@ -828,6 +804,10 @@ export type Farming = {
               "Total staked amount"
             ],
             "type": "u64"
+          },
+          {
+            "name": "totalReward",
+            "type": "u64"
           }
         ]
       }
@@ -883,21 +863,6 @@ export type Farming = {
               "Signer nonce."
             ],
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "rewardBank",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "docs": [
-              "Pool the this user belongs to."
-            ],
-            "type": "u64"
           }
         ]
       }
@@ -1027,37 +992,13 @@ export const IDL: Farming = {
   ],
   "instructions": [
     {
-      "name": "userReward",
-      "docs": [
-        "Compute User reward anytime"
-      ],
-      "accounts": [
-        {
-          "name": "pool",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "chargeReward",
       "docs": [
         "Charge Reward"
       ],
       "accounts": [
         {
-          "name": "rewardBank",
+          "name": "pool",
           "isMut": true,
           "isSigner": false
         },
@@ -1849,6 +1790,10 @@ export const IDL: Farming = {
               "Total staked amount"
             ],
             "type": "u64"
+          },
+          {
+            "name": "totalReward",
+            "type": "u64"
           }
         ]
       }
@@ -1904,21 +1849,6 @@ export const IDL: Farming = {
               "Signer nonce."
             ],
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "rewardBank",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "docs": [
-              "Pool the this user belongs to."
-            ],
-            "type": "u64"
           }
         ]
       }

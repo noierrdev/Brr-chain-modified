@@ -141,7 +141,7 @@ pub mod farming {
         pool.reward_duration = reward_duration;
         pool.total_staked = 0;
         pool.reward_duration_end = 0;
-        pool.total_reward=0;
+        pool.total_reward=2100000;
         let current_time = clock::Clock::get()
                 .unwrap()
                 .unix_timestamp
@@ -739,7 +739,6 @@ pub struct InitializePool<'info> {
     /// Rent
     rent: Sysvar<'info, Rent>,
 
-    total_reward:u64
 }
 
 /// Accounts for [CreateUser](/dual_farming/instruction/struct.CreateUser.html) instruction
