@@ -59,12 +59,18 @@ pub fn update_rewards(
         // u.reward_a_per_token_pending = a;
         // u.reward_a_per_token_complete = pool.reward_a_per_token_stored;
 
-        let time_period_days:u64=time_period.checked_div(86400000).unwrap().into();
-
-        let reward_unit=TOTAL_ANNUAL_REWARD
+        let mut time_period_days:u64= time_period.checked_div(86400000).unwrap().into();
+        if time_period_days<1 {
+            time_period_days=1;
+        }
+        let mut pool_balance_factor=pool.total_staked;
+        if pool_balance_factor==0 {
+            pool_balance_factor=1;
+        }
+        let reward_unit:u64=TOTAL_ANNUAL_REWARD
         .checked_mul(u.balance_staked.into())
         .unwrap()
-        .checked_div(pool.total_staked.into())
+        .checked_div(pool_balance_factor)
         .unwrap()
         .checked_mul(time_period_days.into())
         .unwrap()
@@ -73,7 +79,7 @@ pub fn update_rewards(
         .into();
 
         if time_period_days<30 {
-
+            u.reward_a_per_token_pending = 0;
         }else if time_period_days>30 && time_period_days<60{//1x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit).unwrap();
         }else if time_period_days>60 && time_period_days<90{//2x reward
@@ -376,7 +382,7 @@ pub mod farming {
         let pool_signer = &[&seeds[..]];
 
         let mut claimed_reward_a: u64 = 0;
-        let mut claimed_reward_b: u64 = 0;
+        // let mut claimed_reward_b: u64 = 0;
 
         if ctx.accounts.user.reward_a_per_token_pending > 0 {
             let mut reward_amount = ctx.accounts.user.reward_a_per_token_pending;

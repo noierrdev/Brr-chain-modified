@@ -52,22 +52,6 @@ export type Farming = {
           ]
         },
         {
-          "name": "rewardBMint",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Reward B mint"
-          ]
-        },
-        {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B vault PDA"
-          ]
-        },
-        {
           "name": "authority",
           "isMut": true,
           "isSigner": true,
@@ -421,18 +405,11 @@ export type Farming = {
           ]
         },
         {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B Vault PDA"
-          ]
-        },
-        {
           "name": "funder",
           "isMut": false,
           "isSigner": true,
           "docs": [
+            "Reward B Vault PDA",
             "Funder"
           ]
         },
@@ -445,18 +422,11 @@ export type Farming = {
           ]
         },
         {
-          "name": "fromB",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Funder reward B ATA"
-          ]
-        },
-        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false,
           "docs": [
+            "Funder reward B ATA",
             "Misc."
           ]
         }
@@ -464,10 +434,6 @@ export type Farming = {
       "args": [
         {
           "name": "amountA",
-          "type": "u64"
-        },
-        {
-          "name": "amountB",
           "type": "u64"
         }
       ]
@@ -503,18 +469,11 @@ export type Farming = {
           ]
         },
         {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B Vault PDA"
-          ]
-        },
-        {
           "name": "user",
           "isMut": true,
           "isSigner": false,
           "docs": [
+            "Reward B Vault PDA",
             "User."
           ]
         },
@@ -535,17 +494,12 @@ export type Farming = {
           ]
         },
         {
-          "name": "rewardBAccount",
-          "isMut": true,
+          "name": "tokenProgram",
+          "isMut": false,
           "isSigner": false,
           "docs": [
             "User's Reward B ATA"
           ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": []
@@ -659,11 +613,6 @@ export type Farming = {
           "isSigner": false
         },
         {
-          "name": "rewardBRefundee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "pool",
           "isMut": true,
           "isSigner": false
@@ -680,11 +629,6 @@ export type Farming = {
         },
         {
           "name": "rewardAVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rewardBVault",
           "isMut": true,
           "isSigner": false
         },
@@ -749,22 +693,10 @@ export type Farming = {
             "type": "publicKey"
           },
           {
-            "name": "rewardBMint",
-            "docs": [
-              "Mint of the reward B token."
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "rewardBVault",
-            "docs": [
-              "Vault to store reward B tokens."
-            ],
-            "type": "publicKey"
-          },
-          {
             "name": "baseKey",
             "docs": [
+              "Mint of the reward B token.",
+              "Vault to store reward B tokens.",
               "Base key"
             ],
             "type": "publicKey"
@@ -798,29 +730,17 @@ export type Farming = {
             "type": "u64"
           },
           {
-            "name": "rewardBRate",
-            "docs": [
-              "deprecated field"
-            ],
-            "type": "u64"
-          },
-          {
             "name": "rewardAPerTokenStored",
             "docs": [
+              "deprecated field",
               "Last calculated reward A per pool token."
-            ],
-            "type": "u128"
-          },
-          {
-            "name": "rewardBPerTokenStored",
-            "docs": [
-              "Last calculated reward B per pool token."
             ],
             "type": "u128"
           },
           {
             "name": "userStakeCount",
             "docs": [
+              "Last calculated reward B per pool token.",
               "Users staked"
             ],
             "type": "u32"
@@ -847,15 +767,9 @@ export type Farming = {
             "type": "u128"
           },
           {
-            "name": "rewardBRateU128",
-            "docs": [
-              "reward_b_rate in u128 form"
-            ],
-            "type": "u128"
-          },
-          {
             "name": "poolBump",
             "docs": [
+              "reward_b_rate in u128 form",
               "Pool bump"
             ],
             "type": "u8"
@@ -900,29 +814,17 @@ export type Farming = {
             "type": "u128"
           },
           {
-            "name": "rewardBPerTokenComplete",
-            "docs": [
-              "The amount of token B claimed."
-            ],
-            "type": "u128"
-          },
-          {
             "name": "rewardAPerTokenPending",
             "docs": [
+              "The amount of token B claimed.",
               "The amount of token A pending claim."
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "rewardBPerTokenPending",
-            "docs": [
-              "The amount of token B pending claim."
             ],
             "type": "u64"
           },
           {
             "name": "balanceStaked",
             "docs": [
+              "The amount of token B pending claim.",
               "The amount staked."
             ],
             "type": "u64"
@@ -966,11 +868,6 @@ export type Farming = {
           "name": "amountA",
           "type": "u64",
           "index": false
-        },
-        {
-          "name": "amountB",
-          "type": "u64",
-          "index": false
         }
       ]
     },
@@ -979,11 +876,6 @@ export type Farming = {
       "fields": [
         {
           "name": "amountA",
-          "type": "u64",
-          "index": false
-        },
-        {
-          "name": "amountB",
           "type": "u64",
           "index": false
         }
@@ -1118,22 +1010,6 @@ export const IDL: Farming = {
           ]
         },
         {
-          "name": "rewardBMint",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Reward B mint"
-          ]
-        },
-        {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B vault PDA"
-          ]
-        },
-        {
           "name": "authority",
           "isMut": true,
           "isSigner": true,
@@ -1487,18 +1363,11 @@ export const IDL: Farming = {
           ]
         },
         {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B Vault PDA"
-          ]
-        },
-        {
           "name": "funder",
           "isMut": false,
           "isSigner": true,
           "docs": [
+            "Reward B Vault PDA",
             "Funder"
           ]
         },
@@ -1511,18 +1380,11 @@ export const IDL: Farming = {
           ]
         },
         {
-          "name": "fromB",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Funder reward B ATA"
-          ]
-        },
-        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false,
           "docs": [
+            "Funder reward B ATA",
             "Misc."
           ]
         }
@@ -1530,10 +1392,6 @@ export const IDL: Farming = {
       "args": [
         {
           "name": "amountA",
-          "type": "u64"
-        },
-        {
-          "name": "amountB",
           "type": "u64"
         }
       ]
@@ -1569,18 +1427,11 @@ export const IDL: Farming = {
           ]
         },
         {
-          "name": "rewardBVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Reward B Vault PDA"
-          ]
-        },
-        {
           "name": "user",
           "isMut": true,
           "isSigner": false,
           "docs": [
+            "Reward B Vault PDA",
             "User."
           ]
         },
@@ -1601,17 +1452,12 @@ export const IDL: Farming = {
           ]
         },
         {
-          "name": "rewardBAccount",
-          "isMut": true,
+          "name": "tokenProgram",
+          "isMut": false,
           "isSigner": false,
           "docs": [
             "User's Reward B ATA"
           ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": []
@@ -1725,11 +1571,6 @@ export const IDL: Farming = {
           "isSigner": false
         },
         {
-          "name": "rewardBRefundee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "pool",
           "isMut": true,
           "isSigner": false
@@ -1746,11 +1587,6 @@ export const IDL: Farming = {
         },
         {
           "name": "rewardAVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rewardBVault",
           "isMut": true,
           "isSigner": false
         },
@@ -1815,22 +1651,10 @@ export const IDL: Farming = {
             "type": "publicKey"
           },
           {
-            "name": "rewardBMint",
-            "docs": [
-              "Mint of the reward B token."
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "rewardBVault",
-            "docs": [
-              "Vault to store reward B tokens."
-            ],
-            "type": "publicKey"
-          },
-          {
             "name": "baseKey",
             "docs": [
+              "Mint of the reward B token.",
+              "Vault to store reward B tokens.",
               "Base key"
             ],
             "type": "publicKey"
@@ -1864,29 +1688,17 @@ export const IDL: Farming = {
             "type": "u64"
           },
           {
-            "name": "rewardBRate",
-            "docs": [
-              "deprecated field"
-            ],
-            "type": "u64"
-          },
-          {
             "name": "rewardAPerTokenStored",
             "docs": [
+              "deprecated field",
               "Last calculated reward A per pool token."
-            ],
-            "type": "u128"
-          },
-          {
-            "name": "rewardBPerTokenStored",
-            "docs": [
-              "Last calculated reward B per pool token."
             ],
             "type": "u128"
           },
           {
             "name": "userStakeCount",
             "docs": [
+              "Last calculated reward B per pool token.",
               "Users staked"
             ],
             "type": "u32"
@@ -1913,15 +1725,9 @@ export const IDL: Farming = {
             "type": "u128"
           },
           {
-            "name": "rewardBRateU128",
-            "docs": [
-              "reward_b_rate in u128 form"
-            ],
-            "type": "u128"
-          },
-          {
             "name": "poolBump",
             "docs": [
+              "reward_b_rate in u128 form",
               "Pool bump"
             ],
             "type": "u8"
@@ -1966,29 +1772,17 @@ export const IDL: Farming = {
             "type": "u128"
           },
           {
-            "name": "rewardBPerTokenComplete",
-            "docs": [
-              "The amount of token B claimed."
-            ],
-            "type": "u128"
-          },
-          {
             "name": "rewardAPerTokenPending",
             "docs": [
+              "The amount of token B claimed.",
               "The amount of token A pending claim."
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "rewardBPerTokenPending",
-            "docs": [
-              "The amount of token B pending claim."
             ],
             "type": "u64"
           },
           {
             "name": "balanceStaked",
             "docs": [
+              "The amount of token B pending claim.",
               "The amount staked."
             ],
             "type": "u64"
@@ -2032,11 +1826,6 @@ export const IDL: Farming = {
           "name": "amountA",
           "type": "u64",
           "index": false
-        },
-        {
-          "name": "amountB",
-          "type": "u64",
-          "index": false
         }
       ]
     },
@@ -2045,11 +1834,6 @@ export const IDL: Farming = {
       "fields": [
         {
           "name": "amountA",
-          "type": "u64",
-          "index": false
-        },
-        {
-          "name": "amountB",
           "type": "u64",
           "index": false
         }

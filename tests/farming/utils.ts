@@ -8,7 +8,6 @@ export async function getPoolPda(
   program: anchor.Program<Farming>,
   stakingMint: anchor.web3.PublicKey,
   rewardAMint: anchor.web3.PublicKey,
-  rewardBMint: anchor.web3.PublicKey,
   base: anchor.web3.PublicKey,
   rewardDuration?: anchor.BN
 ) {
@@ -19,7 +18,6 @@ export async function getPoolPda(
         : REWARD_DURATION.toBuffer(null, 8),
       stakingMint.toBuffer(),
       rewardAMint.toBuffer(),
-      rewardBMint.toBuffer(),
       base.toBuffer(),
     ],
     program.programId
@@ -30,7 +28,6 @@ export async function getStakingVaultPda(
   program: anchor.Program<Farming>,
   stakingMint: anchor.web3.PublicKey,
   rewardAMint: anchor.web3.PublicKey,
-  rewardBMint: anchor.web3.PublicKey,
   base: anchor.web3.PublicKey,
   rewardDuration?: anchor.BN
 ) {
@@ -38,7 +35,6 @@ export async function getStakingVaultPda(
     program,
     stakingMint,
     rewardAMint,
-    rewardBMint,
     base,
     rewardDuration
   );
@@ -52,7 +48,7 @@ export async function getRewardAVaultPda(
   program: anchor.Program<Farming>,
   stakingMint: anchor.web3.PublicKey,
   rewardAMint: anchor.web3.PublicKey,
-  rewardBMint: anchor.web3.PublicKey,
+  // rewardBMint: anchor.web3.PublicKey,
   base: anchor.web3.PublicKey,
   rewardDuration?: anchor.BN
 ) {
@@ -60,7 +56,7 @@ export async function getRewardAVaultPda(
     program,
     stakingMint,
     rewardAMint,
-    rewardBMint,
+    // rewardBMint,
     base,
     rewardDuration
   );
@@ -70,27 +66,27 @@ export async function getRewardAVaultPda(
   );
 }
 
-export async function getRewardBVaultPda(
-  program: anchor.Program<Farming>,
-  stakingMint: anchor.web3.PublicKey,
-  rewardAMint: anchor.web3.PublicKey,
-  rewardBMint: anchor.web3.PublicKey,
-  base: anchor.web3.PublicKey,
-  rewardDuration?: anchor.BN
-) {
-  const [poolAddress, _] = await getPoolPda(
-    program,
-    stakingMint,
-    rewardAMint,
-    rewardBMint,
-    base,
-    rewardDuration
-  );
-  return anchor.web3.PublicKey.findProgramAddress(
-    [Buffer.from("reward_b"), poolAddress.toBuffer()],
-    program.programId
-  );
-}
+// export async function getRewardBVaultPda(
+//   program: anchor.Program<Farming>,
+//   stakingMint: anchor.web3.PublicKey,
+//   rewardAMint: anchor.web3.PublicKey,
+//   rewardBMint: anchor.web3.PublicKey,
+//   base: anchor.web3.PublicKey,
+//   rewardDuration?: anchor.BN
+// ) {
+//   const [poolAddress, _] = await getPoolPda(
+//     program,
+//     stakingMint,
+//     rewardAMint,
+//     rewardBMint,
+//     base,
+//     rewardDuration
+//   );
+  // return anchor.web3.PublicKey.findProgramAddress(
+  //   [Buffer.from("reward_b"), poolAddress.toBuffer()],
+  //   program.programId
+  // );
+// }
 
 export async function getUserPda(
   program: anchor.Program<Farming>,

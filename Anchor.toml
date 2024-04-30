@@ -1,4 +1,4 @@
-anchor_version = "0.24.2"
+anchor_version = "0.28.0"
 
 [workspace]
 members = ["programs/farming"]
@@ -11,6 +11,6 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
-farming = "FarmuwXPWXvefWUeqFAa5w6rifLkq5X6E8bimYvrhCB1"
+farming = "kJsQ8P7cKZneV3tTQPGP8xKz5mpMxrgDatWNQRiYmvG"
 
 

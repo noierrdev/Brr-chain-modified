@@ -51,11 +51,21 @@ describe("dual-farming with single reward", () => {
     );
     await program.provider.connection.confirmTransaction(sig);
 
+    sleep(1000)
+
     sig = await program.provider.connection.requestAirdrop(
       USER_KEYPAIR.publicKey,
       100 * LAMPORTS_PER_SOL
     );
     await program.provider.connection.confirmTransaction(sig);
+
+    // sleep(1000)
+
+    // sig = await program.provider.connection.requestAirdrop(
+    //   USER_KEYPAIR.publicKey,
+    //   100 * LAMPORTS_PER_SOL
+    // );
+    // await program.provider.connection.confirmTransaction(sig);
 
     stakingToken = await Token.createMint(
       program.provider.connection,
@@ -100,20 +110,17 @@ describe("dual-farming with single reward", () => {
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
     const [stakingVaultAddress, _stakingVaultBump] = await getStakingVaultPda(
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
     const [rewardAVaultAddress, _rewardAVaultBump] = await getRewardAVaultPda(
       program,
       stakingMint,
-      rewardMint,
       rewardMint,
       BASE_KEYPAIR.publicKey
     );
@@ -149,7 +156,6 @@ describe("dual-farming with single reward", () => {
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
     const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
@@ -184,7 +190,6 @@ describe("dual-farming with single reward", () => {
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
 
@@ -193,9 +198,8 @@ describe("dual-farming with single reward", () => {
       farmingPoolAddress,
       USER_KEYPAIR.publicKey
     );
-
+    
     const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
-
     await program.methods
       .deposit(DEPOSIT_AMOUNT)
       .accounts({
@@ -217,7 +221,6 @@ describe("dual-farming with single reward", () => {
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
 
@@ -231,10 +234,9 @@ describe("dual-farming with single reward", () => {
     );
 
     await program.methods
-      .fund(FUND_AMOUNT, new anchor.BN(0))
+      .fund(FUND_AMOUNT)
       .accounts({
         fromA: adminRewardATA,
-        fromB: adminRewardATA,
         funder: ADMIN_KEYPAIR.publicKey,
         pool: farmingPoolAddress,
         rewardAVault: poolAccount.rewardAVault,
@@ -257,7 +259,6 @@ describe("dual-farming with single reward", () => {
       program,
       stakingMint,
       rewardMint,
-      rewardMint,
       BASE_KEYPAIR.publicKey
     );
 
@@ -271,7 +272,10 @@ describe("dual-farming with single reward", () => {
       userRewardATA
     );
 
+    
+
     const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    console.log(poolAccount)
     await program.methods
       .claim()
       .accounts({
@@ -287,10 +291,11 @@ describe("dual-farming with single reward", () => {
       })
       .signers([USER_KEYPAIR])
       .rpc();
-
     const afterBalance = await provider.connection.getTokenAccountBalance(
       userRewardATA
     );
+    console.log("---------------beforeBlanace-----------",beforeBalance)
+    console.log("-----------afterBalanc-----------------",afterBalance)
 
     const isRewardClaimed = new anchor.BN(afterBalance.value.amount).gt(
       new anchor.BN(beforeBalance.value.amount)
