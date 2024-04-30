@@ -30,6 +30,26 @@ export type Farming = {
       ]
     },
     {
+      "name": "remainingReward",
+      "docs": [
+        "Get Total Reward remaining in Pool"
+      ],
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [],
+      "returns": "u64"
+    },
+    {
       "name": "initializePool",
       "docs": [
         "Initializes a new pool. Able to create pool with single reward by passing the same Mint account for reward_a_mint and reward_a_mint"
@@ -1014,6 +1034,26 @@ export const IDL: Farming = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "remainingReward",
+      "docs": [
+        "Get Total Reward remaining in Pool"
+      ],
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [],
+      "returns": "u64"
     },
     {
       "name": "initializePool",

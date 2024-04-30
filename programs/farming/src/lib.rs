@@ -124,6 +124,12 @@ pub mod farming {
         Ok(())
     }
 
+    ///Get Total Reward remaining in Pool
+    pub fn remaining_reward(ctx:Context<RemainingReward>)->Result<u64>{
+        let pool=&mut ctx.accounts.pool;
+        Ok(pool.total_reward)
+    }
+
     /// Initializes a new pool. Able to create pool with single reward by passing the same Mint account for reward_a_mint and reward_a_mint
     pub fn initialize_pool(ctx: Context<InitializePool>, reward_duration: u64) -> Result<()> {
         if reward_duration < MIN_DURATION {
@@ -1117,8 +1123,13 @@ pub struct User {
 
 #[derive(Accounts)]
 pub struct ChargeReward<'info> {
-    // we are going to store users vote in this account. Hence marking it as mutable(mut), 
     #[account(mut)] 
+    pub pool: Account<'info, Pool>,
+    pub signer: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct RemainingReward<'info> {
     pub pool: Account<'info, Pool>,
     pub signer: Signer<'info>,
 }

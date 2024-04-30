@@ -537,4 +537,17 @@ describe("dual-farming with single reward", () => {
     );
     console.log("First User: ",afterBalance)
   });
+  it("Get remaining reward from the pool", async () => {
+    // await sleep(3000);
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+
+    console.log(poolAccount.totalReward.toString())
+    
+  });
 });
