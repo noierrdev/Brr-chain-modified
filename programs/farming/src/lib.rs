@@ -92,7 +92,14 @@ pub fn update_rewards(
         else { //4x reward
             reward_pending=reward_unit.checked_mul(4).unwrap();
         }
-        u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_pending).unwrap();
+        
+        if pool.total_reward > reward_pending {
+            u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_pending).unwrap();
+            pool.total_reward=pool.total_reward.checked_sub(reward_pending).unwrap();
+        }else{
+            u.reward_a_per_token_pending=pool.total_reward;
+            pool.total_reward=0;
+        }
     }
     Ok(())
 }
@@ -110,19 +117,10 @@ pub mod farming {
     use super::*;
     pub const MIN_DURATION: u64 = 1;
 
-    ///Compute User reward anytime
-    // pub fn user_reward(ctx: Context<UserReward>)->Result<()>{
-    //     let pool =&mut  ctx.accounts.pool;
-    //     // let user=&mut ctx.accounts.user;
-    //     let user_opt = Some(&mut ctx.accounts.user);
-    //     update_rewards(pool, user_opt, pool.total_staked).unwrap();
-    //     Ok(())
-    // }
-
     ///Charge Reward
-    pub fn charge_reward(ctx:Context<ChargeRewardBank>,charge_amount:u64)->Result<()>{
-        let rewardBank=&mut ctx.accounts.reward_bank;
-        rewardBank.amount=rewardBank.amount.checked_add(charge_amount.into()).unwrap();
+    pub fn charge_reward(ctx:Context<ChargeReward>,charge_amount:u64)->Result<()>{
+        let pool=&mut ctx.accounts.pool;
+        pool.total_reward=pool.total_reward.checked_add(charge_amount.into()).unwrap();
         Ok(())
     }
 
@@ -143,6 +141,7 @@ pub mod farming {
         pool.reward_duration = reward_duration;
         pool.total_staked = 0;
         pool.reward_duration_end = 0;
+        pool.total_reward=0;
         let current_time = clock::Clock::get()
                 .unwrap()
                 .unix_timestamp
@@ -739,6 +738,8 @@ pub struct InitializePool<'info> {
     token_program: Program<'info, Token>,
     /// Rent
     rent: Sysvar<'info, Rent>,
+
+    total_reward:u64
 }
 
 /// Accounts for [CreateUser](/dual_farming/instruction/struct.CreateUser.html) instruction
@@ -1077,6 +1078,7 @@ pub struct Pool {
     pub pool_bump: u8, // 1
     /// Total staked amount
     pub total_staked: u64,
+    pub total_reward:u64
 }
 
 impl Pool {
@@ -1114,18 +1116,11 @@ pub struct User {
 }
 
 
-#[account]
-#[derive(Default)]
-pub struct RewardBank {
-    /// Pool the this user belongs to.
-    pub amount: u64,
-}
-
 #[derive(Accounts)]
-pub struct ChargeRewardBank<'info> {
+pub struct ChargeReward<'info> {
     // we are going to store users vote in this account. Hence marking it as mutable(mut), 
     #[account(mut)] 
-    pub reward_bank: Account<'info, RewardBank>,
+    pub pool: Account<'info, Pool>,
     pub signer: Signer<'info>,
 }
 
