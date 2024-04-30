@@ -11,7 +11,7 @@ use std::fmt::Debug;
 
 use crate::pool::*;
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{clock, sysvar, msg};
+use anchor_lang::solana_program::{clock, sysvar};
 use anchor_spl::token::spl_token;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryFrom;
@@ -58,8 +58,8 @@ pub fn update_rewards(
         if time_period_days<1 {
             time_period_days=1;
         }
-        let mut pool_balance_factor=pool.total_staked;
-        if pool_balance_factor==0 {
+        let mut pool_balance_factor=total_staked;
+        if pool_balance_factor<1 {
             pool_balance_factor=1;
         }
 
@@ -76,22 +76,23 @@ pub fn update_rewards(
 
 
         // u.reward_a_per_token_pending=time_period_days.into();
-
+        let mut reward_pending:u64=0;
         if time_period_days<1 {//less than 1 seconds
-            u.reward_a_per_token_pending = 0;
+            reward_pending = 0;
         }
-        else if time_period_days<6 {//1x reward
-            u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit).unwrap();
+        else if time_period_days<3 {//1x reward
+            reward_pending=reward_unit;
         }
-        else if time_period_days<9 {//2x reward
-            u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(2).unwrap()).unwrap();
+        else if time_period_days<6 {//2x reward
+            reward_pending=reward_unit.checked_mul(2).unwrap();
         }
         else if  time_period_days<18 {//3x reward
-            u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(3).unwrap()).unwrap();
+            reward_pending=reward_unit.checked_mul(3).unwrap();
         }
         else { //4x reward
-            u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(4).unwrap()).unwrap();
+            reward_pending=reward_unit.checked_mul(4).unwrap();
         }
+        u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_pending).unwrap();
     }
     Ok(())
 }
@@ -108,6 +109,23 @@ fn last_time_reward_applicable(reward_duration_end: u64) -> u64 {
 pub mod farming {
     use super::*;
     pub const MIN_DURATION: u64 = 1;
+
+    ///Compute User reward anytime
+    // pub fn user_reward(ctx: Context<UserReward>)->Result<()>{
+    //     let pool =&mut  ctx.accounts.pool;
+    //     // let user=&mut ctx.accounts.user;
+    //     let user_opt = Some(&mut ctx.accounts.user);
+    //     update_rewards(pool, user_opt, pool.total_staked).unwrap();
+    //     Ok(())
+    // }
+
+    ///Charge Reward
+    pub fn charge_reward(ctx:Context<ChargeRewardBank>,charge_amount:u64)->Result<()>{
+        let rewardBank=&mut ctx.accounts.reward_bank;
+        rewardBank.amount=rewardBank.amount.checked_add(charge_amount.into()).unwrap();
+        Ok(())
+    }
+
     /// Initializes a new pool. Able to create pool with single reward by passing the same Mint account for reward_a_mint and reward_a_mint
     pub fn initialize_pool(ctx: Context<InitializePool>, reward_duration: u64) -> Result<()> {
         if reward_duration < MIN_DURATION {
@@ -353,20 +371,6 @@ pub mod farming {
             token::transfer(cpi_ctx, amount_a)?;
         }
 
-        // Transfer reward B tokens into the B vault.
-        // if amount_b > 0 {
-        //     let cpi_ctx = CpiContext::new(
-        //         ctx.accounts.token_program.to_account_info(),
-        //         token::Transfer {
-        //             from: ctx.accounts.from_b.to_account_info(),
-        //             to: ctx.accounts.reward_b_vault.to_account_info(),
-        //             authority: ctx.accounts.funder.to_account_info(),
-        //         },
-        //     );
-
-        //     token::transfer(cpi_ctx, amount_b)?;
-        // }
-
         let current_time = clock::Clock::get()
             .unwrap()
             .unix_timestamp
@@ -382,7 +386,12 @@ pub mod farming {
     /// User claim rewards
     pub fn claim(ctx: Context<ClaimReward>) -> Result<()> {
         let pool = &mut ctx.accounts.pool;
-
+        let current_time = clock::Clock::get()
+            .unwrap()
+            .unix_timestamp
+            .try_into()
+            .unwrap();
+        pool.last_update_time=current_time;
         let user_opt = Some(&mut ctx.accounts.user);
         update_rewards(pool, user_opt, pool.total_staked).unwrap();
 
@@ -423,7 +432,12 @@ pub mod farming {
                 claimed_reward_a = reward_amount;
             }
         }
-
+        // let current_time:u64 = clock::Clock::get()
+        //     .unwrap()
+        //     .unix_timestamp
+        //     .try_into()
+        //     .unwrap();
+        // pool.last_update_time=current_time;
         // if ctx.accounts.user.reward_b_per_token_pending > 0 {
             // let mut reward_amount = ctx.accounts.user.reward_b_per_token_pending;
             // let vault_balance = ctx.accounts.reward_b_vault.amount;
@@ -447,7 +461,7 @@ pub mod farming {
             //     claimed_reward_b = reward_amount;
             // }
         // }
-
+            
         emit!(EventClaim {
             amount_a: claimed_reward_a,
             // amount_b: claimed_reward_b
@@ -787,6 +801,14 @@ pub struct Unpause<'info> {
 
 /// Accounts for [Deposit](/dual_farming/instruction/struct.Deposit.html) and [Withdraw](/dual_farming/instruction/struct.Withdraw.html) instructions.
 #[derive(Accounts)]
+pub struct UserReward<'info> {
+    pool: Box<Account<'info, Pool>>,
+    user: Box<Account<'info, User>>,
+    owner: Signer<'info>,
+}
+
+/// Accounts for [Deposit](/dual_farming/instruction/struct.Deposit.html) and [Withdraw](/dual_farming/instruction/struct.Withdraw.html) instructions.
+#[derive(Accounts)]
 pub struct Deposit<'info> {
     /// Global accounts for the deposit/withdraw instance.
     #[account(
@@ -1089,6 +1111,22 @@ pub struct User {
     pub balance_staked: u64,
     /// Signer nonce.
     pub nonce: u8,
+}
+
+
+#[account]
+#[derive(Default)]
+pub struct RewardBank {
+    /// Pool the this user belongs to.
+    pub amount: u64,
+}
+
+#[derive(Accounts)]
+pub struct ChargeRewardBank<'info> {
+    // we are going to store users vote in this account. Hence marking it as mutable(mut), 
+    #[account(mut)] 
+    pub reward_bank: Account<'info, RewardBank>,
+    pub signer: Signer<'info>,
 }
 
 /// Deposit event

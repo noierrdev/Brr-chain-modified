@@ -6,6 +6,54 @@ export type Farming = {
   ],
   "instructions": [
     {
+      "name": "userReward",
+      "docs": [
+        "Compute User reward anytime"
+      ],
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "chargeReward",
+      "docs": [
+        "Charge Reward"
+      ],
+      "accounts": [
+        {
+          "name": "rewardBank",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "chargeAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "initializePool",
       "docs": [
         "Initializes a new pool. Able to create pool with single reward by passing the same Mint account for reward_a_mint and reward_a_mint"
@@ -835,6 +883,21 @@ export type Farming = {
               "Signer nonce."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rewardBank",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "docs": [
+              "Pool the this user belongs to."
+            ],
+            "type": "u64"
           }
         ]
       }
@@ -964,6 +1027,54 @@ export const IDL: Farming = {
   ],
   "instructions": [
     {
+      "name": "userReward",
+      "docs": [
+        "Compute User reward anytime"
+      ],
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "chargeReward",
+      "docs": [
+        "Charge Reward"
+      ],
+      "accounts": [
+        {
+          "name": "rewardBank",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "chargeAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "initializePool",
       "docs": [
         "Initializes a new pool. Able to create pool with single reward by passing the same Mint account for reward_a_mint and reward_a_mint"
@@ -1793,6 +1904,21 @@ export const IDL: Farming = {
               "Signer nonce."
             ],
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rewardBank",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "docs": [
+              "Pool the this user belongs to."
+            ],
+            "type": "u64"
           }
         ]
       }

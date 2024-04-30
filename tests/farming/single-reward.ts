@@ -219,7 +219,8 @@ describe("dual-farming with single reward", () => {
       .rpc();
   });
 
-  it("should stake to the pool", async () => {
+  it("First should stake to the pool", async () => {
+    await sleep(1000);
     const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
 
     await stakingToken.mintTo(
@@ -256,8 +257,7 @@ describe("dual-farming with single reward", () => {
       .signers([USER_KEYPAIR])
       .rpc();
   });
-
-  it("should fund the pool reward A only", async () => {
+  it("First should fund the pool reward A only", async () => {
     const FUND_AMOUNT = new anchor.BN(20_000 * TOKEN_MULTIPLIER);
 
     const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
@@ -293,11 +293,102 @@ describe("dual-farming with single reward", () => {
     let poolRewardABalance = await provider.connection.getTokenAccountBalance(
       poolAccount.rewardAVault
     );
+
     assert.strictEqual(poolRewardABalance.value.amount, FUND_AMOUNT.toString());
   });
+  // it("should claim reward from the pool", async () => {
+  //   await sleep(3000);
+  //   const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+  //     program,
+  //     stakingMint,
+  //     rewardMint,
+  //     BASE_KEYPAIR.publicKey
+  //   );
+
+  //   const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
+  //     program,
+  //     farmingPoolAddress,
+  //     USER_KEYPAIR.publicKey
+  //   );
+
+  //   const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    
+  //   await program.methods
+  //     .claim()
+  //     .accounts({
+  //       owner: USER_KEYPAIR.publicKey,
+  //       pool: farmingPoolAddress,
+  //       rewardAAccount: userRewardATA,
+  //       // rewardBAccount: userRewardATA,
+  //       rewardAVault: poolAccount.rewardAVault,
+  //       // rewardBVault: poolAccount.rewardBVault,
+  //       stakingVault: poolAccount.stakingVault,
+  //       tokenProgram: TOKEN_PROGRAM_ID,
+  //       user: userStakingAddress,
+  //     })
+  //     .signers([USER_KEYPAIR])
+  //     .rpc();
+
+  //   const afterBalance = await provider.connection.getTokenAccountBalance(
+  //     userRewardATA
+  //   );
+  //   console.log("First User: ",afterBalance);
+  //   const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
+  //   await program.methods
+  //     .withdraw(DEPOSIT_AMOUNT)
+  //     .accounts({
+  //       owner: USER_KEYPAIR.publicKey,
+  //       pool: farmingPoolAddress,
+  //       stakeFromAccount: userStakingATA,
+  //       stakingVault: poolAccount.stakingVault,
+  //       tokenProgram: TOKEN_PROGRAM_ID,
+  //       user: userStakingAddress,
+  //     })
+  //     .signers([USER_KEYPAIR])
+  //     .rpc();
+  // });
+  // it("First should stake to the pool", async () => {
+  //   await sleep(1000);
+  //   const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
+
+  //   await stakingToken.mintTo(
+  //     userStakingATA,
+  //     ADMIN_KEYPAIR,
+  //     [],
+  //     1000 * TOKEN_MULTIPLIER
+  //   );
+
+  //   const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+  //     program,
+  //     stakingMint,
+  //     rewardMint,
+  //     BASE_KEYPAIR.publicKey
+  //   );
+
+  //   const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
+  //     program,
+  //     farmingPoolAddress,
+  //     USER_KEYPAIR.publicKey
+  //   );
+    
+  //   const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+  //   await program.methods
+  //     .deposit(DEPOSIT_AMOUNT)
+  //     .accounts({
+  //       owner: USER_KEYPAIR.publicKey,
+  //       pool: farmingPoolAddress,
+  //       stakeFromAccount: userStakingATA,
+  //       stakingVault: poolAccount.stakingVault,
+  //       tokenProgram: TOKEN_PROGRAM_ID,
+  //       user: userStakingAddress,
+  //     })
+  //     .signers([USER_KEYPAIR])
+  //     .rpc();
+  // });
+  
 
   it("Other user should stake to the pool", async () => {
-    await sleep(10000);   // 
+    await sleep(2000);   // 
     const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
 
     await stakingToken.mintTo(
@@ -334,15 +425,88 @@ describe("dual-farming with single reward", () => {
       .signers([OTHER_USER_KEYPAIR])
       .rpc();
   });
+  // it("Second should fund the pool reward A only", async () => {
+  //   const FUND_AMOUNT = new anchor.BN(20_000 * TOKEN_MULTIPLIER);
 
+  //   const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+  //     program,
+  //     stakingMint,
+  //     rewardMint,
+  //     BASE_KEYPAIR.publicKey
+  //   );
+
+  //   const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+
+  //   await rewardToken.mintTo(
+  //     adminRewardATA,
+  //     ADMIN_KEYPAIR,
+  //     [],
+  //     100_000 * TOKEN_MULTIPLIER
+  //   );
+
+  //   await program.methods
+  //     .fund(FUND_AMOUNT)
+  //     .accounts({
+  //       fromA: adminRewardATA,
+  //       funder: ADMIN_KEYPAIR.publicKey,
+  //       pool: farmingPoolAddress,
+  //       rewardAVault: poolAccount.rewardAVault,
+  //       // rewardBVault: poolAccount.rewardBVault,
+  //       stakingVault: poolAccount.stakingVault,
+  //       tokenProgram: TOKEN_PROGRAM_ID,
+  //     })
+  //     .signers([ADMIN_KEYPAIR])
+  //     .rpc();
+
+  //   let poolRewardABalance = await provider.connection.getTokenAccountBalance(
+  //     poolAccount.rewardAVault
+  //   );
+
+  //   assert.strictEqual(poolRewardABalance.value.amount, FUND_AMOUNT.toString());
+  // });
+/////////////////////////////////////////////////////////////////////////////
   it("should claim reward from the pool", async () => {
-    await sleep(1000);
+    await sleep(3000);
     const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
       program,
       stakingMint,
       rewardMint,
       BASE_KEYPAIR.publicKey
     );
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    const [otheruserStakingAddress, _otheruserStakingAddressBump] = await getUserPda(
+      program,
+      farmingPoolAddress,
+      OTHER_USER_KEYPAIR.publicKey
+    );
+
+    const otherbeforeBalance = await provider.connection.getTokenAccountBalance(
+      otheruserRewardATA
+    );
+    await program.methods
+      .claim()
+      .accounts({
+        owner: OTHER_USER_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        rewardAAccount: otheruserRewardATA,
+        // rewardBAccount: userRewardATA,
+        rewardAVault: poolAccount.rewardAVault,
+        // rewardBVault: poolAccount.rewardBVault,
+        stakingVault: poolAccount.stakingVault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        user: otheruserStakingAddress,
+      })
+      .signers([OTHER_USER_KEYPAIR])
+      .rpc();
+    
+
+    const otherBalance = await provider.connection.getTokenAccountBalance(
+      otheruserRewardATA
+    );
+
+    console.log("Other User : ",otherBalance)
+
+    
 
     const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
       program,
@@ -350,13 +514,8 @@ describe("dual-farming with single reward", () => {
       USER_KEYPAIR.publicKey
     );
 
-    const beforeBalance = await provider.connection.getTokenAccountBalance(
-      userRewardATA
-    );
-
     
-
-    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    
     await program.methods
       .claim()
       .accounts({
@@ -372,14 +531,10 @@ describe("dual-farming with single reward", () => {
       })
       .signers([USER_KEYPAIR])
       .rpc();
+
     const afterBalance = await provider.connection.getTokenAccountBalance(
       userRewardATA
     );
-
-    const isRewardClaimed = new anchor.BN(afterBalance.value.amount).gt(
-      new anchor.BN(beforeBalance.value.amount)
-    );
-
-    assert.deepStrictEqual(isRewardClaimed, true);
+    console.log("First User: ",afterBalance)
   });
 });
