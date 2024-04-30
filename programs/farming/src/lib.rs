@@ -54,7 +54,7 @@ pub fn update_rewards(
 
         pool.last_update_time = current_time;
 
-        let mut time_period_days:u64= time_period.checked_div(1).unwrap().into();
+        let mut time_period_days:u64= time_period.checked_div(1).unwrap().into();//seconds
         if time_period_days<1 {
             time_period_days=1;
         }
@@ -77,16 +77,16 @@ pub fn update_rewards(
 
         // u.reward_a_per_token_pending=time_period_days.into();
 
-        if time_period_days<1 {
+        if time_period_days<1 {//less than 1 seconds
             u.reward_a_per_token_pending = 0;
         }
-        else if time_period_days<60 {//1x reward
+        else if time_period_days<6 {//1x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit).unwrap();
         }
-        else if time_period_days<90 {//2x reward
+        else if time_period_days<9 {//2x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(2).unwrap()).unwrap();
         }
-        else if  time_period_days<180 {//3x reward
+        else if  time_period_days<18 {//3x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(3).unwrap()).unwrap();
         }
         else { //4x reward

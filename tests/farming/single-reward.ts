@@ -297,6 +297,7 @@ describe("dual-farming with single reward", () => {
   });
 
   it("Other user should stake to the pool", async () => {
+    await sleep(10000);   // 
     const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
 
     await stakingToken.mintTo(
