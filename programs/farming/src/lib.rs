@@ -11,7 +11,7 @@ use std::fmt::Debug;
 
 use crate::pool::*;
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{clock, sysvar};
+use anchor_lang::solana_program::{clock, sysvar, msg};
 use anchor_spl::token::spl_token;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryFrom;
@@ -22,7 +22,7 @@ pub mod pool;
 declare_id!("kJsQ8P7cKZneV3tTQPGP8xKz5mpMxrgDatWNQRiYmvG");
 
 const PRECISION: u128 = 1_000_000_000;
-const TOTAL_ANNUAL_REWARD:u64=2100000;
+const TOTAL_ANNUAL_REWARD:u64=2_100_000;
 
 /// Updates the pool with the total reward per token that is due stakers
 /// Using the calculator specific to that pool version which uses the reward
@@ -36,30 +36,25 @@ pub fn update_rewards(
     user: Option<&mut Box<Account<User>>>,
     total_staked: u64,
 ) -> Result<()> {
-    let last_time_reward_applicable = last_time_reward_applicable(pool.reward_duration_end);
+    // let last_time_reward_applicable = last_time_reward_applicable(pool.reward_duration_end);
 
-    let reward_a = reward_per_token(pool, total_staked, last_time_reward_applicable);
+    // let reward_a = reward_per_token(pool, total_staked, last_time_reward_applicable);
 
-    pool.reward_a_per_token_stored = reward_a;
+    // pool.reward_a_per_token_stored = reward_a;
     // if pool.reward_a_vault != pool.reward_b_vault {
     //     pool.reward_b_per_token_stored = reward_b;
-    // }
-
-    pool.last_update_time = last_time_reward_applicable;
+    // }   
 
     if let Some(u) = user {
-        let a = user_earned_amount(pool, u);
 
         let current_time:u64=clock::Clock::get().unwrap().unix_timestamp.try_into().unwrap();
         let time_period:u64 = current_time
-            .checked_sub(last_time_reward_applicable)
+            .checked_sub(pool.last_update_time)
             .unwrap().into();
-        // u.last_reward_time=current_time;
 
-        // u.reward_a_per_token_pending = a;
-        // u.reward_a_per_token_complete = pool.reward_a_per_token_stored;
+        pool.last_update_time = current_time;
 
-        let mut time_period_days:u64= time_period.checked_div(86400000).unwrap().into();
+        let mut time_period_days:u64= time_period.checked_div(1).unwrap().into();
         if time_period_days<1 {
             time_period_days=1;
         }
@@ -67,33 +62,37 @@ pub fn update_rewards(
         if pool_balance_factor==0 {
             pool_balance_factor=1;
         }
-        let reward_unit:u64=TOTAL_ANNUAL_REWARD
+
+        let mut reward_unit:u64=TOTAL_ANNUAL_REWARD
         .checked_mul(u.balance_staked.into())
         .unwrap()
-        .checked_div(pool_balance_factor)
-        .unwrap()
         .checked_mul(time_period_days.into())
+        .unwrap()
+        .checked_div(pool_balance_factor.into())
         .unwrap()
         .checked_div(365)
         .unwrap()
         .into();
 
-        if time_period_days<30 {
+
+        // u.reward_a_per_token_pending=time_period_days.into();
+
+        if time_period_days<1 {
             u.reward_a_per_token_pending = 0;
-        }else if time_period_days>30 && time_period_days<60{//1x reward
+        }
+        else if time_period_days<60 {//1x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit).unwrap();
-        }else if time_period_days>60 && time_period_days<90{//2x reward
+        }
+        else if time_period_days<90 {//2x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(2).unwrap()).unwrap();
-        }else if time_period_days>90 && time_period_days<180{//3x reward
+        }
+        else if  time_period_days<180 {//3x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(3).unwrap()).unwrap();
-        }else if time_period_days>180{//4x reward
+        }
+        else { //4x reward
             u.reward_a_per_token_pending=u.reward_a_per_token_pending.checked_add(reward_unit.checked_mul(4).unwrap()).unwrap();
         }
-
-        // u.reward_b_per_token_pending = b;
-        // u.reward_b_per_token_complete = pool.reward_b_per_token_stored;
     }
-
     Ok(())
 }
 
@@ -126,7 +125,12 @@ pub mod farming {
         pool.reward_duration = reward_duration;
         pool.total_staked = 0;
         pool.reward_duration_end = 0;
-        pool.last_update_time = 0;
+        let current_time = clock::Clock::get()
+                .unwrap()
+                .unix_timestamp
+                .try_into()
+                .unwrap();
+        pool.last_update_time = current_time;
         pool.reward_a_per_token_stored = 0;
         // pool.reward_b_per_token_stored = 0;
         pool.user_stake_count = 0;
@@ -202,6 +206,12 @@ pub mod farming {
                 .total_staked
                 .checked_add(amount)
                 .ok_or(ErrorCode::MathOverflow)?;
+            let current_time = clock::Clock::get()
+                .unwrap()
+                .unix_timestamp
+                .try_into()
+                .unwrap();
+            pool.last_update_time=current_time;
             emit!(EventDeposit { amount });
         }
         Ok(())
@@ -256,6 +266,12 @@ pub mod farming {
                 .total_staked
                 .checked_sub(spt_amount)
                 .ok_or(ErrorCode::MathOverflow)?;
+            let current_time = clock::Clock::get()
+                .unwrap()
+                .unix_timestamp
+                .try_into()
+                .unwrap();
+            pool.last_update_time=current_time;
             emit!(EventWithdraw { amount: spt_amount });
         }
         Ok(())

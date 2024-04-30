@@ -22,6 +22,7 @@ const program = anchor.workspace.Farming as Program<Farming>;
 const BASE_KEYPAIR = anchor.web3.Keypair.generate();
 const ADMIN_KEYPAIR = anchor.web3.Keypair.generate();
 const USER_KEYPAIR = anchor.web3.Keypair.generate();
+const OTHER_USER_KEYPAIR = anchor.web3.Keypair.generate();
 const FUNDER_KEYPAIR = anchor.web3.Keypair.generate();
 const TOKEN_DECIMAL = 6;
 const TOKEN_MULTIPLIER = 10 ** TOKEN_DECIMAL;
@@ -41,6 +42,9 @@ describe("dual-farming with single reward", () => {
   let userStakingATA: anchor.web3.PublicKey = null;
   let userRewardATA: anchor.web3.PublicKey = null;
 
+  let otheruserStakingATA: anchor.web3.PublicKey = null;
+  let otheruserRewardATA: anchor.web3.PublicKey = null;
+
   let adminStakingATA: anchor.web3.PublicKey = null;
   let adminRewardATA: anchor.web3.PublicKey = null;
 
@@ -55,6 +59,14 @@ describe("dual-farming with single reward", () => {
 
     sig = await program.provider.connection.requestAirdrop(
       USER_KEYPAIR.publicKey,
+      100 * LAMPORTS_PER_SOL
+    );
+    await program.provider.connection.confirmTransaction(sig);
+
+    sleep(1000)
+
+    sig = await program.provider.connection.requestAirdrop(
+      OTHER_USER_KEYPAIR.publicKey,
       100 * LAMPORTS_PER_SOL
     );
     await program.provider.connection.confirmTransaction(sig);
@@ -79,6 +91,9 @@ describe("dual-farming with single reward", () => {
     userStakingATA = await stakingToken.createAssociatedTokenAccount(
       USER_KEYPAIR.publicKey
     );
+    otheruserStakingATA = await stakingToken.createAssociatedTokenAccount(
+      OTHER_USER_KEYPAIR.publicKey
+    );
     adminStakingATA = await stakingToken.createAssociatedTokenAccount(
       ADMIN_KEYPAIR.publicKey
     );
@@ -94,6 +109,9 @@ describe("dual-farming with single reward", () => {
     rewardMint = rewardToken.publicKey;
     userRewardATA = await rewardToken.createAssociatedTokenAccount(
       USER_KEYPAIR.publicKey
+    );
+    otheruserRewardATA = await rewardToken.createAssociatedTokenAccount(
+      OTHER_USER_KEYPAIR.publicKey
     );
     adminRewardATA = await rewardToken.createAssociatedTokenAccount(
       ADMIN_KEYPAIR.publicKey
@@ -176,6 +194,31 @@ describe("dual-farming with single reward", () => {
       .rpc();
   });
 
+  it("should create another user", async () => {
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+    const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
+      program,
+      farmingPoolAddress,
+      OTHER_USER_KEYPAIR.publicKey
+    );
+
+    await program.methods
+      .createUser()
+      .accounts({
+        owner: OTHER_USER_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        user: userStakingAddress,
+      })
+      .signers([OTHER_USER_KEYPAIR])
+      .rpc();
+  });
+
   it("should stake to the pool", async () => {
     const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
 
@@ -253,6 +296,44 @@ describe("dual-farming with single reward", () => {
     assert.strictEqual(poolRewardABalance.value.amount, FUND_AMOUNT.toString());
   });
 
+  it("Other user should stake to the pool", async () => {
+    const DEPOSIT_AMOUNT = new anchor.BN(500 * TOKEN_MULTIPLIER);
+
+    await stakingToken.mintTo(
+      otheruserStakingATA,
+      ADMIN_KEYPAIR,
+      [],
+      1000 * TOKEN_MULTIPLIER
+    );
+
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+
+    const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
+      program,
+      farmingPoolAddress,
+      OTHER_USER_KEYPAIR.publicKey
+    );
+    
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    await program.methods
+      .deposit(DEPOSIT_AMOUNT)
+      .accounts({
+        owner: OTHER_USER_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        stakeFromAccount: otheruserStakingATA,
+        stakingVault: poolAccount.stakingVault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        user: userStakingAddress,
+      })
+      .signers([OTHER_USER_KEYPAIR])
+      .rpc();
+  });
+
   it("should claim reward from the pool", async () => {
     await sleep(1000);
     const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
@@ -275,7 +356,6 @@ describe("dual-farming with single reward", () => {
     
 
     const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
-    console.log(poolAccount)
     await program.methods
       .claim()
       .accounts({
@@ -294,8 +374,6 @@ describe("dual-farming with single reward", () => {
     const afterBalance = await provider.connection.getTokenAccountBalance(
       userRewardATA
     );
-    console.log("---------------beforeBlanace-----------",beforeBalance)
-    console.log("-----------afterBalanc-----------------",afterBalance)
 
     const isRewardClaimed = new anchor.BN(afterBalance.value.amount).gt(
       new anchor.BN(beforeBalance.value.amount)
