@@ -383,6 +383,7 @@ pub mod farming {
             .unwrap();
         pool.last_update_time = current_time;
         pool.reward_duration_end = current_time.checked_add(pool.reward_duration).unwrap();
+        pool.total_reward=pool.total_reward.checked_add(amount_a).unwrap();
 
         emit!(EventFund { amount_a});
         Ok(())

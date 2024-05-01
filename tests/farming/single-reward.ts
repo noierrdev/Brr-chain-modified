@@ -51,7 +51,7 @@ describe("dual-farming with single reward", () => {
   before(async () => {
     let sig = await program.provider.connection.requestAirdrop(
       ADMIN_KEYPAIR.publicKey,
-      100 * LAMPORTS_PER_SOL
+      10000 * LAMPORTS_PER_SOL
     );
     await program.provider.connection.confirmTransaction(sig);
 
@@ -257,8 +257,8 @@ describe("dual-farming with single reward", () => {
       .signers([USER_KEYPAIR])
       .rpc();
   });
-  it("First should fund the pool reward A only", async () => {
-    const FUND_AMOUNT = new anchor.BN(20_000 * TOKEN_MULTIPLIER);
+  it("should fund the pool reward A only", async () => {
+    const FUND_AMOUNT = new anchor.BN(2.1* TOKEN_MULTIPLIER);
 
     const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
       program,
@@ -546,7 +546,146 @@ describe("dual-farming with single reward", () => {
       BASE_KEYPAIR.publicKey
     );
     const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    console.log("----------Remaining Total Reward----------------")
+    console.log(poolAccount.totalReward.toString())
+    
+  });
+  it("should claim reward from the pool again", async () => {
+    await sleep(3000);
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    const [otheruserStakingAddress, _otheruserStakingAddressBump] = await getUserPda(
+      program,
+      farmingPoolAddress,
+      OTHER_USER_KEYPAIR.publicKey
+    );
 
+    const otherbeforeBalance = await provider.connection.getTokenAccountBalance(
+      otheruserRewardATA
+    );
+    await program.methods
+      .claim()
+      .accounts({
+        owner: OTHER_USER_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        rewardAAccount: otheruserRewardATA,
+        // rewardBAccount: userRewardATA,
+        rewardAVault: poolAccount.rewardAVault,
+        // rewardBVault: poolAccount.rewardBVault,
+        stakingVault: poolAccount.stakingVault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        user: otheruserStakingAddress,
+      })
+      .signers([OTHER_USER_KEYPAIR])
+      .rpc();
+    
+
+    const otherBalance = await provider.connection.getTokenAccountBalance(
+      otheruserRewardATA
+    );
+
+    console.log("Other User : ",otherBalance)
+
+    
+
+    const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
+      program,
+      farmingPoolAddress,
+      USER_KEYPAIR.publicKey
+    );
+
+    
+    
+    await program.methods
+      .claim()
+      .accounts({
+        owner: USER_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        rewardAAccount: userRewardATA,
+        // rewardBAccount: userRewardATA,
+        rewardAVault: poolAccount.rewardAVault,
+        // rewardBVault: poolAccount.rewardBVault,
+        stakingVault: poolAccount.stakingVault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        user: userStakingAddress,
+      })
+      .signers([USER_KEYPAIR])
+      .rpc();
+
+    const afterBalance = await provider.connection.getTokenAccountBalance(
+      userRewardATA
+    );
+    console.log("First User: ",afterBalance)
+  });
+  it("Get remaining reward from the pool again", async () => {
+    // await sleep(3000);
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    console.log("----------Remaining Total Reward----------------")
+    console.log(poolAccount.totalReward.toString())
+    
+  });
+  it("should fund the pool reward A only again", async () => {
+    const FUND_AMOUNT = new anchor.BN(2.1 * TOKEN_MULTIPLIER);
+
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+
+    // await rewardToken.mintTo(
+    //   adminRewardATA,
+    //   ADMIN_KEYPAIR,
+    //   [],
+    //   100_000 * TOKEN_MULTIPLIER
+    // );
+
+    await program.methods
+      .fund(FUND_AMOUNT)
+      .accounts({
+        fromA: adminRewardATA,
+        funder: ADMIN_KEYPAIR.publicKey,
+        pool: farmingPoolAddress,
+        rewardAVault: poolAccount.rewardAVault,
+        // rewardBVault: poolAccount.rewardBVault,
+        stakingVault: poolAccount.stakingVault,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([ADMIN_KEYPAIR])
+      .rpc();
+
+    let poolRewardABalance = await provider.connection.getTokenAccountBalance(
+      poolAccount.rewardAVault
+    );
+
+    console.log(poolRewardABalance)
+
+    // assert.strictEqual(poolRewardABalance.value.amount, FUND_AMOUNT.toString());
+  });
+  it("Get remaining reward from the pool again", async () => {
+    // await sleep(3000);
+    const [farmingPoolAddress, _farmingPoolBump] = await getPoolPda(
+      program,
+      stakingMint,
+      rewardMint,
+      BASE_KEYPAIR.publicKey
+    );
+    const poolAccount = await program.account.pool.fetch(farmingPoolAddress);
+    console.log("----------Remaining Total Reward----------------")
     console.log(poolAccount.totalReward.toString())
     
   });
