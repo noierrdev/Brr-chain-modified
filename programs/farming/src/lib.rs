@@ -52,7 +52,7 @@ pub fn update_rewards(
             .checked_sub(pool.last_update_time)
             .unwrap().into();
 
-        pool.last_update_time = current_time;
+        
 
         let mut time_period_days:u64= time_period.checked_div(1).unwrap().into();//seconds
         if time_period_days<1 {
@@ -80,13 +80,13 @@ pub fn update_rewards(
         if time_period_days<1 {//less than 1 seconds
             reward_pending = 0;
         }
-        else if time_period_days<3 {//1x reward
+        else if time_period_days<4 {//1x reward
             reward_pending=reward_unit;
         }
-        else if time_period_days<6 {//2x reward
+        else if time_period_days<8 {//2x reward
             reward_pending=reward_unit.checked_mul(2).unwrap();
         }
-        else if  time_period_days<18 {//3x reward
+        else if  time_period_days<16 {//3x reward
             reward_pending=reward_unit.checked_mul(3).unwrap();
         }
         else { //4x reward
@@ -100,6 +100,7 @@ pub fn update_rewards(
             u.reward_a_per_token_pending=pool.total_reward;
             pool.total_reward=0;
         }
+        pool.last_update_time = current_time;
     }
     Ok(())
 }
@@ -397,9 +398,11 @@ pub mod farming {
             .unix_timestamp
             .try_into()
             .unwrap();
-        pool.last_update_time=current_time;
+        
         let user_opt = Some(&mut ctx.accounts.user);
         update_rewards(pool, user_opt, pool.total_staked).unwrap();
+
+        pool.last_update_time=current_time;
 
         let reward_duration = ctx.accounts.pool.reward_duration.to_be_bytes();
         let seeds = &[

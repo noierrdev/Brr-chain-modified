@@ -592,7 +592,7 @@ describe("dual-farming with single reward", () => {
     console.log("Other User : ",otherBalance)
 
     
-
+    await sleep(10000);
     const [userStakingAddress, _userStakingAddressBump] = await getUserPda(
       program,
       farmingPoolAddress,
